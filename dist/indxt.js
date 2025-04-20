@@ -1,18 +1,7 @@
 #!/usr/bin/env node
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
-const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
-const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
 // Tool definitions
 const listChannelsTool = {
     name: "slack_list_channels",
@@ -164,276 +153,259 @@ const getUserProfileTool = {
     },
 };
 class SlackClient {
+    botHeaders;
     constructor(botToken) {
         this.botHeaders = {
             Authorization: `Bearer ${botToken}`,
             "Content-Type": "application/json",
         };
     }
-    getChannels() {
-        return __awaiter(this, arguments, void 0, function* (limit = 100, cursor) {
-            const predefinedChannelIds = process.env.SLACK_CHANNEL_IDS;
-            if (!predefinedChannelIds) {
-                const params = new URLSearchParams({
-                    types: "public_channel",
-                    exclude_archived: "true",
-                    limit: Math.min(limit, 200).toString(),
-                    team_id: process.env.SLACK_TEAM_ID,
-                });
-                if (cursor) {
-                    params.append("cursor", cursor);
-                }
-                const response = yield fetch(`https://slack.com/api/conversations.list?${params}`, { headers: this.botHeaders });
-                return response.json();
-            }
-            const predefinedChannelIdsArray = predefinedChannelIds.split(",").map((id) => id.trim());
-            const channels = [];
-            for (const channelId of predefinedChannelIdsArray) {
-                const params = new URLSearchParams({
-                    channel: channelId,
-                });
-                const response = yield fetch(`https://slack.com/api/conversations.info?${params}`, { headers: this.botHeaders });
-                const data = yield response.json();
-                if (data.ok && data.channel && !data.channel.is_archived) {
-                    channels.push(data.channel);
-                }
-            }
-            return {
-                ok: true,
-                channels: channels,
-                response_metadata: { next_cursor: "" },
-            };
-        });
-    }
-    postMessage(channel_id, text) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch("https://slack.com/api/chat.postMessage", {
-                method: "POST",
-                headers: this.botHeaders,
-                body: JSON.stringify({
-                    channel: channel_id,
-                    text: text,
-                }),
-            });
-            return response.json();
-        });
-    }
-    postReply(channel_id, thread_ts, text) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch("https://slack.com/api/chat.postMessage", {
-                method: "POST",
-                headers: this.botHeaders,
-                body: JSON.stringify({
-                    channel: channel_id,
-                    thread_ts: thread_ts,
-                    text: text,
-                }),
-            });
-            return response.json();
-        });
-    }
-    addReaction(channel_id, timestamp, reaction) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch("https://slack.com/api/reactions.add", {
-                method: "POST",
-                headers: this.botHeaders,
-                body: JSON.stringify({
-                    channel: channel_id,
-                    timestamp: timestamp,
-                    name: reaction,
-                }),
-            });
-            return response.json();
-        });
-    }
-    getChannelHistory(channel_id_1) {
-        return __awaiter(this, arguments, void 0, function* (channel_id, limit = 10) {
+    async getChannels(limit = 100, cursor) {
+        const predefinedChannelIds = process.env.SLACK_CHANNEL_IDS;
+        if (!predefinedChannelIds) {
             const params = new URLSearchParams({
-                channel: channel_id,
-                limit: limit.toString(),
-            });
-            const response = yield fetch(`https://slack.com/api/conversations.history?${params}`, { headers: this.botHeaders });
-            return response.json();
-        });
-    }
-    getThreadReplies(channel_id, thread_ts) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = new URLSearchParams({
-                channel: channel_id,
-                ts: thread_ts,
-            });
-            const response = yield fetch(`https://slack.com/api/conversations.replies?${params}`, { headers: this.botHeaders });
-            return response.json();
-        });
-    }
-    getUsers() {
-        return __awaiter(this, arguments, void 0, function* (limit = 100, cursor) {
-            const params = new URLSearchParams({
+                types: "public_channel",
+                exclude_archived: "true",
                 limit: Math.min(limit, 200).toString(),
                 team_id: process.env.SLACK_TEAM_ID,
             });
             if (cursor) {
                 params.append("cursor", cursor);
             }
-            const response = yield fetch(`https://slack.com/api/users.list?${params}`, {
-                headers: this.botHeaders,
-            });
+            const response = await fetch(`https://slack.com/api/conversations.list?${params}`, { headers: this.botHeaders });
             return response.json();
-        });
-    }
-    getUserProfile(user_id) {
-        return __awaiter(this, void 0, void 0, function* () {
+        }
+        const predefinedChannelIdsArray = predefinedChannelIds.split(",").map((id) => id.trim());
+        const channels = [];
+        for (const channelId of predefinedChannelIdsArray) {
             const params = new URLSearchParams({
-                user: user_id,
-                include_labels: "true",
+                channel: channelId,
             });
-            const response = yield fetch(`https://slack.com/api/users.profile.get?${params}`, { headers: this.botHeaders });
-            return response.json();
+            const response = await fetch(`https://slack.com/api/conversations.info?${params}`, { headers: this.botHeaders });
+            const data = await response.json();
+            if (data.ok && data.channel && !data.channel.is_archived) {
+                channels.push(data.channel);
+            }
+        }
+        return {
+            ok: true,
+            channels: channels,
+            response_metadata: { next_cursor: "" },
+        };
+    }
+    async postMessage(channel_id, text) {
+        const response = await fetch("https://slack.com/api/chat.postMessage", {
+            method: "POST",
+            headers: this.botHeaders,
+            body: JSON.stringify({
+                channel: channel_id,
+                text: text,
+            }),
         });
+        return response.json();
+    }
+    async postReply(channel_id, thread_ts, text) {
+        const response = await fetch("https://slack.com/api/chat.postMessage", {
+            method: "POST",
+            headers: this.botHeaders,
+            body: JSON.stringify({
+                channel: channel_id,
+                thread_ts: thread_ts,
+                text: text,
+            }),
+        });
+        return response.json();
+    }
+    async addReaction(channel_id, timestamp, reaction) {
+        const response = await fetch("https://slack.com/api/reactions.add", {
+            method: "POST",
+            headers: this.botHeaders,
+            body: JSON.stringify({
+                channel: channel_id,
+                timestamp: timestamp,
+                name: reaction,
+            }),
+        });
+        return response.json();
+    }
+    async getChannelHistory(channel_id, limit = 10) {
+        const params = new URLSearchParams({
+            channel: channel_id,
+            limit: limit.toString(),
+        });
+        const response = await fetch(`https://slack.com/api/conversations.history?${params}`, { headers: this.botHeaders });
+        return response.json();
+    }
+    async getThreadReplies(channel_id, thread_ts) {
+        const params = new URLSearchParams({
+            channel: channel_id,
+            ts: thread_ts,
+        });
+        const response = await fetch(`https://slack.com/api/conversations.replies?${params}`, { headers: this.botHeaders });
+        return response.json();
+    }
+    async getUsers(limit = 100, cursor) {
+        const params = new URLSearchParams({
+            limit: Math.min(limit, 200).toString(),
+            team_id: process.env.SLACK_TEAM_ID,
+        });
+        if (cursor) {
+            params.append("cursor", cursor);
+        }
+        const response = await fetch(`https://slack.com/api/users.list?${params}`, {
+            headers: this.botHeaders,
+        });
+        return response.json();
+    }
+    async getUserProfile(user_id) {
+        const params = new URLSearchParams({
+            user: user_id,
+            include_labels: "true",
+        });
+        const response = await fetch(`https://slack.com/api/users.profile.get?${params}`, { headers: this.botHeaders });
+        return response.json();
     }
 }
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const botToken = process.env.SLACK_BOT_TOKEN;
-        const teamId = process.env.SLACK_TEAM_ID;
-        if (!botToken || !teamId) {
-            console.error("SLACK_BOT_TOKEN과 SLACK_TEAM_ID 환경 변수를 설정해주세요");
-            process.exit(1);
+async function main() {
+    const botToken = process.env.SLACK_BOT_TOKEN;
+    const teamId = process.env.SLACK_TEAM_ID;
+    if (!botToken || !teamId) {
+        console.error("SLACK_BOT_TOKEN과 SLACK_TEAM_ID 환경 변수를 설정해주세요");
+        process.exit(1);
+    }
+    console.error("Slack MCP 서버를 시작합니다...");
+    const server = new Server({
+        name: "kimpalbokTV's slack mcp server",
+        version: "1.0.0",
+    }, {
+        capabilities: {
+            tools: {},
+        },
+    });
+    const slackClient = new SlackClient(botToken);
+    server.setRequestHandler(CallToolRequestSchema, async (request) => {
+        console.error("CallToolRequest를 수신했습니다:", request);
+        try {
+            if (!request.params.arguments) {
+                throw new Error("인자가 제공되지 않았습니다");
+            }
+            switch (request.params.name) {
+                case "slack_list_channels": {
+                    const args = request.params
+                        .arguments;
+                    const response = await slackClient.getChannels(args.limit, args.cursor);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_post_message": {
+                    const args = request.params.arguments;
+                    if (!args.channel_id || !args.text) {
+                        throw new Error("필수 인자(channel_id와 text)가 누락되었습니다");
+                    }
+                    const response = await slackClient.postMessage(args.channel_id, args.text);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_reply_to_thread": {
+                    const args = request.params
+                        .arguments;
+                    if (!args.channel_id || !args.thread_ts || !args.text) {
+                        throw new Error("필수 인자(channel_id, thread_ts, text)가 누락되었습니다");
+                    }
+                    const response = await slackClient.postReply(args.channel_id, args.thread_ts, args.text);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_add_reaction": {
+                    const args = request.params.arguments;
+                    if (!args.channel_id || !args.timestamp || !args.reaction) {
+                        throw new Error("필수 인자(channel_id, timestamp, reaction)가 누락되었습니다");
+                    }
+                    const response = await slackClient.addReaction(args.channel_id, args.timestamp, args.reaction);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_get_channel_history": {
+                    const args = request.params
+                        .arguments;
+                    if (!args.channel_id) {
+                        throw new Error("필수 인자(channel_id)가 누락되었습니다");
+                    }
+                    const response = await slackClient.getChannelHistory(args.channel_id, args.limit);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_get_thread_replies": {
+                    const args = request.params
+                        .arguments;
+                    if (!args.channel_id || !args.thread_ts) {
+                        throw new Error("필수 인자(channel_id와 thread_ts)가 누락되었습니다");
+                    }
+                    const response = await slackClient.getThreadReplies(args.channel_id, args.thread_ts);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_get_users": {
+                    const args = request.params.arguments;
+                    const response = await slackClient.getUsers(args.limit, args.cursor);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                case "slack_get_user_profile": {
+                    const args = request.params
+                        .arguments;
+                    if (!args.user_id) {
+                        throw new Error("필수 인자(user_id)가 누락되었습니다");
+                    }
+                    const response = await slackClient.getUserProfile(args.user_id);
+                    return {
+                        content: [{ type: "text", text: JSON.stringify(response) }],
+                    };
+                }
+                default:
+                    throw new Error(`알 수 없는 도구: ${request.params.name}`);
+            }
         }
-        console.error("Slack MCP 서버를 시작합니다...");
-        const server = new index_js_1.Server({
-            name: "kimpalbokTV's slack mcp server",
-            version: "1.0.0",
-        }, {
-            capabilities: {
-                tools: {},
-            },
-        });
-        const slackClient = new SlackClient(botToken);
-        server.setRequestHandler(types_js_1.CallToolRequestSchema, (request) => __awaiter(this, void 0, void 0, function* () {
-            console.error("CallToolRequest를 수신했습니다:", request);
-            try {
-                if (!request.params.arguments) {
-                    throw new Error("인자가 제공되지 않았습니다");
-                }
-                switch (request.params.name) {
-                    case "slack_list_channels": {
-                        const args = request.params
-                            .arguments;
-                        const response = yield slackClient.getChannels(args.limit, args.cursor);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_post_message": {
-                        const args = request.params.arguments;
-                        if (!args.channel_id || !args.text) {
-                            throw new Error("필수 인자(channel_id와 text)가 누락되었습니다");
-                        }
-                        const response = yield slackClient.postMessage(args.channel_id, args.text);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_reply_to_thread": {
-                        const args = request.params
-                            .arguments;
-                        if (!args.channel_id || !args.thread_ts || !args.text) {
-                            throw new Error("필수 인자(channel_id, thread_ts, text)가 누락되었습니다");
-                        }
-                        const response = yield slackClient.postReply(args.channel_id, args.thread_ts, args.text);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_add_reaction": {
-                        const args = request.params.arguments;
-                        if (!args.channel_id || !args.timestamp || !args.reaction) {
-                            throw new Error("필수 인자(channel_id, timestamp, reaction)가 누락되었습니다");
-                        }
-                        const response = yield slackClient.addReaction(args.channel_id, args.timestamp, args.reaction);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_get_channel_history": {
-                        const args = request.params
-                            .arguments;
-                        if (!args.channel_id) {
-                            throw new Error("필수 인자(channel_id)가 누락되었습니다");
-                        }
-                        const response = yield slackClient.getChannelHistory(args.channel_id, args.limit);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_get_thread_replies": {
-                        const args = request.params
-                            .arguments;
-                        if (!args.channel_id || !args.thread_ts) {
-                            throw new Error("필수 인자(channel_id와 thread_ts)가 누락되었습니다");
-                        }
-                        const response = yield slackClient.getThreadReplies(args.channel_id, args.thread_ts);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_get_users": {
-                        const args = request.params.arguments;
-                        const response = yield slackClient.getUsers(args.limit, args.cursor);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    case "slack_get_user_profile": {
-                        const args = request.params
-                            .arguments;
-                        if (!args.user_id) {
-                            throw new Error("필수 인자(user_id)가 누락되었습니다");
-                        }
-                        const response = yield slackClient.getUserProfile(args.user_id);
-                        return {
-                            content: [{ type: "text", text: JSON.stringify(response) }],
-                        };
-                    }
-                    default:
-                        throw new Error(`알 수 없는 도구: ${request.params.name}`);
-                }
-            }
-            catch (error) {
-                console.error("도구 실행 중 오류:", error);
-                return {
-                    content: [
-                        {
-                            type: "text",
-                            text: JSON.stringify({
-                                error: error instanceof Error ? error.message : String(error),
-                            }),
-                        },
-                    ],
-                };
-            }
-        }));
-        server.setRequestHandler(types_js_1.ListToolsRequestSchema, () => __awaiter(this, void 0, void 0, function* () {
-            console.error("ListToolsRequest를 수신했습니다");
+        catch (error) {
+            console.error("도구 실행 중 오류:", error);
             return {
-                tools: [
-                    listChannelsTool,
-                    postMessageTool,
-                    replyToThreadTool,
-                    addReactionTool,
-                    getChannelHistoryTool,
-                    getThreadRepliesTool,
-                    getUsersTool,
-                    getUserProfileTool,
+                content: [
+                    {
+                        type: "text",
+                        text: JSON.stringify({
+                            error: error instanceof Error ? error.message : String(error),
+                        }),
+                    },
                 ],
             };
-        }));
-        const transport = new stdio_js_1.StdioServerTransport();
-        console.error("서버를 트랜스포트에 연결 중...");
-        yield server.connect(transport);
-        console.error("Slack MCP 서버가 stdio에서 실행 중입니다");
+        }
     });
+    server.setRequestHandler(ListToolsRequestSchema, async () => {
+        console.error("ListToolsRequest를 수신했습니다");
+        return {
+            tools: [
+                listChannelsTool,
+                postMessageTool,
+                replyToThreadTool,
+                addReactionTool,
+                getChannelHistoryTool,
+                getThreadRepliesTool,
+                getUsersTool,
+                getUserProfileTool,
+            ],
+        };
+    });
+    const transport = new StdioServerTransport();
+    console.error("서버를 트랜스포트에 연결 중...");
+    await server.connect(transport);
+    console.error("Slack MCP 서버가 stdio에서 실행 중입니다");
 }
 main().catch((error) => {
     console.error("main()에서 치명적인 오류 발생:", error);
