@@ -1,6 +1,6 @@
 # 김팔복TV의 Slack MCP Server 예제
 
-이 저장소는 김팔복TV에서 사용하는 Slack MCP(Model Context Protocol) 서버의 예제 코드입니다. Slack 워크스페이스와 연동하여 다양한 채널/메시지/사용자 관련 기능을 제공합니다.
+이 저장소는 김팔복TV에서 사용하는 Slack MCP(Model Context Protocol) Server의 예제 코드입니다. Slack 워크스페이스와 연동하여 다양한 채널/메시지/사용자 관련 기능을 제공합니다.
 
 ## 주요 기능
 
