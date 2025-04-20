@@ -1,6 +1,6 @@
 {
   "name": "kimpalbok-slack-mcp-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "김팔복TV의 slack mcp server 예제 입니다.",
   "type": "module",
   "main": "dist/index.js",

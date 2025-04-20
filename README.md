@@ -48,7 +48,7 @@ export SLACK_CHANNEL_IDS=C12345678,C23456789
 
 ## Slack 봇 설정
 
-[앱 및 봇 설정](https://api.slack.com/apps)
+앱 및 봇 설정 링크 [https://api.slack.com/apps](https://api.slack.com/apps)
 
 - "OAuth & Permissions" 메뉴에서 "Bot User OAuth Token"을 참고하세요.
 - "OAuth & Permissions" 메뉴에서 "Scopes"에서 권한을 추가하세요.
