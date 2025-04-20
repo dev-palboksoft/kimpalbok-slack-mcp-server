@@ -15,15 +15,11 @@ configSchema:
   required:
     - SLACK_BOT_TOKEN
     - SLACK_TEAM_ID
-commandFunction: |-
-  (config) => ({
-    command: "node",
-    args: [
-      "dist/index.js"
-    ],
-    env: {
-      SLACK_BOT_TOKEN: config.SLACK_BOT_TOKEN,
-      SLACK_TEAM_ID: config.SLACK_TEAM_ID,
-      SLACK_CHANNEL_IDS: config.SLACK_CHANNEL_IDS
-    }
-  })
+startCommand:
+  command: node
+  args:
+    - dist/index.js
+  env:
+    SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+    SLACK_TEAM_ID: ${SLACK_TEAM_ID}
+    SLACK_CHANNEL_IDS: ${SLACK_CHANNEL_IDS}
