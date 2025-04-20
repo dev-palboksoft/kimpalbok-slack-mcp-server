@@ -19,7 +19,7 @@
         "command": "npx",
         "args": [
             "-y",
-            "https://github.com/dev-palboksoft/kimpalbok-slack-mcp-server.git"
+            "kimpalbok-slack-mcp-server"
         ]
     },
     "env": {
