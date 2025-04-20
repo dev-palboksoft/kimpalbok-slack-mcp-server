@@ -46,18 +46,6 @@ export SLACK_TEAM_ID=T12345678
 export SLACK_CHANNEL_IDS=C12345678,C23456789
 ```
 
-## 실행 방법
-
-```bash
-node dist/indxt.js
-```
-
-또는 npm 스크립트 사용:
-
-```bash
-npm run build
-node dist/indxt.js
-```
 
 ## 사용 예시
 
@@ -84,4 +72,4 @@ node dist/indxt.js
 
 ---
 
-문의: [김팔복TV](https://www.youtube.com/@kimpalbokTV)
+문의: [김팔복TV](https://www.youtube.com/@kimpalbok)
