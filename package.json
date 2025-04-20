@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "김팔복TV의 slack mcp server 예제 입니다.",
   "type": "module",
-  "bin": {
-    "kimpalbok-slack-mcp-server": "dist/index.js"
-  },
+  "main": "dist/index.js",
   "files": [
     "dist"
   ],
