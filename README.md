@@ -16,27 +16,27 @@
 {
   "mcpServers": {
     "kimpalbok-slack-mcp-server": {
-        "command": "npx",
-        "args": [
-            "-y",
-            "kimpalbok-slack-mcp-server"
-        ]
+      "command": "npx",
+      "args": [
+        "-y",
+        "kimpalbok-slack-mcp-server"
+      ]
     },
     "env": {
-        "SLACK_BOT_TOKEN": "",
-        "SLACK_TEAM_ID": ""
+      "SLACK_BOT_TOKEN": "xoxb-...",
+      "SLACK_TEAM_ID": "T12345678"
     }
+  }
 }
 ```
-
 
 ## 환경 변수 설정
 
 실행 전 아래 환경 변수를 반드시 설정해야 합니다.
 
-- `SLACK_BOT_TOKEN` : Slack 봇 토큰 (ex. `xoxb-...`)
-- `SLACK_TEAM_ID` : Slack 워크스페이스 팀 ID (ex. `T12345678`)
-- (선택) `SLACK_CHANNEL_IDS` : 사전 정의된 채널 ID 목록 (쉼표로 구분)
+- `SLACK_BOT_TOKEN`: Slack 봇 토큰 (예: `xoxb-...`)
+- `SLACK_TEAM_ID`: Slack 워크스페이스 팀 ID (예: `T12345678`)
+- (선택) `SLACK_CHANNEL_IDS`: 사전 정의된 채널 ID 목록 (쉼표로 구분)
 
 예시:
 
@@ -46,22 +46,32 @@ export SLACK_TEAM_ID=T12345678
 export SLACK_CHANNEL_IDS=C12345678,C23456789
 ```
 
+## Slack 봇 설정
+
+[앱 및 봇 설정](https://api.slack.com/apps)
+
+- "OAuth & Permissions" 메뉴에서 "Bot User OAuth Token"을 참고하세요.
+- "OAuth & Permissions" 메뉴에서 "Scopes"에서 권한을 추가하세요.
+
+- SLACK_TEAM_ID 확인 방법  
+  https://apps.slack.com 으로 접속 후 브라우저에서 실행해보세요.  
+  URL의 "T..."로 시작하는 문자열이 TEAM_ID입니다.
 
 ## 사용 예시
 
 서버는 MCP 프로토콜을 통해 다양한 도구(tool)를 제공합니다.  
 아래는 지원하는 주요 도구와 설명입니다.
 
-| 도구 이름 | 설명 |
-|-----------|------|
-| slack_list_channels | 워크스페이스의 공개 또는 사전 정의된 채널 목록 조회 |
-| slack_post_message | 채널에 새 메시지 게시 |
-| slack_reply_to_thread | 특정 메시지 스레드에 답장 |
-| slack_add_reaction | 메시지에 이모지 반응 추가 |
-| slack_get_channel_history | 채널에서 최근 메시지 가져오기 |
-| slack_get_thread_replies | 메시지 스레드의 모든 답장 가져오기 |
-| slack_get_users | 워크스페이스의 모든 사용자와 기본 프로필 정보 가져오기 |
-| slack_get_user_profile | 특정 사용자의 상세 프로필 정보 가져오기 |
+| 도구 이름                | 설명                                               |
+|--------------------------|----------------------------------------------------|
+| slack_list_channels      | 워크스페이스의 공개 또는 사전 정의된 채널 목록 조회 |
+| slack_post_message       | 채널에 새 메시지 게시                              |
+| slack_reply_to_thread    | 특정 메시지 스레드에 답장                          |
+| slack_add_reaction       | 메시지에 이모지 반응 추가                          |
+| slack_get_channel_history| 채널에서 최근 메시지 가져오기                      |
+| slack_get_thread_replies | 메시지 스레드의 모든 답장 가져오기                 |
+| slack_get_users          | 워크스페이스의 모든 사용자와 기본 프로필 정보 가져오기 |
+| slack_get_user_profile   | 특정 사용자의 상세 프로필 정보 가져오기            |
 
 각 도구의 입력 파라미터와 반환값은 코드의 `Tool` 정의 및 TypeScript 타입을 참고하세요.
 
