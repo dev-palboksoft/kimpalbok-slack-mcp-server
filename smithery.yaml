@@ -1,12 +1,4 @@
 # Smithery.ai configuration
-startCommand:
-  command: node
-  args:
-    - dist/index.js
-  env:
-    SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
-    SLACK_TEAM_ID: ${SLACK_TEAM_ID}
-    # SLACK_CHANNEL_IDS: ${SLACK_CHANNEL_IDS} # 필요시 주석 해제
 type: stdio
 configSchema:
   type: object
