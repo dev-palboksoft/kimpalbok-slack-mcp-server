@@ -1,0 +1,46 @@
+# Smithery.ai configuration
+startCommand:
+  command: node
+  args:
+    - dist/index.js
+  env:
+    SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+    SLACK_TEAM_ID: ${SLACK_TEAM_ID}
+    # SLACK_CHANNEL_IDS: ${SLACK_CHANNEL_IDS} # 필요시 주석 해제
+type: stdio
+configSchema:
+  {
+    "type": "object",
+    "properties": {
+      "SLACK_BOT_TOKEN": {
+        "type": "string",
+        "description": "Slack 봇 토큰"
+      },
+      "SLACK_TEAM_ID": {
+        "type": "string",
+        "description": "Slack 워크스페이스 팀 ID"
+      },
+      "SLACK_CHANNEL_IDS": {
+        "type": "string",
+        "description": "(선택) 사전 정의된 채널 ID 목록(쉼표로 구분)"
+      }
+    },
+    "required": [
+      "SLACK_BOT_TOKEN",
+      "SLACK_TEAM_ID"
+    ]
+  }
+commandFunction:
+  # A function that produces the CLI command to start the MCP on stdio.
+  |-
+  (config) => ({
+    "command": "node",
+    "args": [
+      "dist/index.js"
+    ],
+    "env": {
+      "SLACK_BOT_TOKEN": config.SLACK_BOT_TOKEN,
+      "SLACK_TEAM_ID": config.SLACK_TEAM_ID,
+      "SLACK_CHANNEL_IDS": config.SLACK_CHANNEL_IDS
+    }
+  })
