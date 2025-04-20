@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# prepare 훅 없이 의존성만 설치
+RUN npm install --ignore-scripts
 
 # Copy application code
 COPY . .

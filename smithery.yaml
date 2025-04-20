@@ -4,6 +4,7 @@ build:
   dockerBuildPath: ./
 
 startCommand:
+  type: stdio
   configSchema:
     type: object
     required:
@@ -29,4 +30,3 @@ startCommand:
         SLACK_CHANNEL_IDS: config.SLACK_CHANNEL_IDS
       }
     })
-  type: stdio
