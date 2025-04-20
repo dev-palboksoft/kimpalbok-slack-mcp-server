@@ -1,7 +1,7 @@
 {
   "name": "kimpalbok-slack-mcp-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "김팔복TV의 slack mcp server 예제 입니다.",
   "type": "module",
   "bin": {
     "kimpalbok-slack-mcp-server": "dist/index.js"
@@ -11,12 +11,16 @@
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "npm run build",
     "watch": "tsc --watch"
   },
-  "author": "",
+  "author": "김팔복TV",
   "license": "ISC",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.10.1"
+    "@modelcontextprotocol/sdk": "^1.10.1",
+    "@types/node": "^22.14.1",
+    "shx": "^0.4.0",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
