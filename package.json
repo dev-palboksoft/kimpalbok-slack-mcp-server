@@ -4,6 +4,9 @@
   "description": "김팔복TV의 slack mcp server 예제 입니다.",
   "type": "module",
   "main": "dist/index.js",
+  "bin": {
+    "kimpalbok-slack-mcp-server": "dist/index.js"
+  },
   "files": [
     "dist"
   ],
@@ -12,6 +15,11 @@
     "prepare": "npm run build",
     "watch": "tsc --watch"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dev-palboksoft/kimpalbok-slack-mcp-server.git"
+  },
+  "keywords": ["mcp", "slack", "server", "mcpserver", "kimpalbok"],
   "author": "김팔복TV",
   "license": "ISC",
   "dependencies": {
