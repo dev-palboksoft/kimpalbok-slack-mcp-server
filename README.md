@@ -21,6 +21,10 @@
             "-y",
             "https://github.com/dev-palboksoft/kimpalbok-slack-mcp-server.git"
         ]
+    },
+    "env": {
+        "SLACK_BOT_TOKEN": "",
+        "SLACK_TEAM_ID": ""
     }
 }
 ```
